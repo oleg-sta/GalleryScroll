@@ -20,13 +20,13 @@ To build this application the next is required:
 
 ## How it works
 
-###Problem
+### Problem
 Main thread shouldn't be blocked. Converting from .jpg file or any other file to thumbnail picture is heavy task. That's why any converting should be done outside of main thread. This application could be used with any amount of images and any size of them.
 
-###AsyncTask
+### AsyncTask
 AsyncTask could be used to start process outside of the main thread.
 
 Note. (AsyncTask was deprecated from API level 30).
 
-###Caching
+### Caching
 There are two caching ways: storing thumbnails in the memory and storing them on the cache directory. Mechanism for the cache is LRU(least recently used).
