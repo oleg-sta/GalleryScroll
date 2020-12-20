@@ -2,9 +2,9 @@
 
 ## What is it?
 
-This is android application, that shows all your photos in GridView. Photo gallery uses AsyncTask and LRU disk and memory caches to smoothly scroll photos. Demonstration video of the application:
+This is android application, that shows all your photos in GridView. Photo gallery uses AsyncTask and LRU disk and memory caches to smoothly scroll photos. Demonstration of the application:
 
-[![Demo video](http://img.youtube.com/vi/PegAlCnk2_w/0.jpg)](http://www.youtube.com/watch?v=PegAlCnk2_w "GalleryScroll")
+![Demo](./assets/galleryscroll.gif)
 
 # Table of Contests
 
