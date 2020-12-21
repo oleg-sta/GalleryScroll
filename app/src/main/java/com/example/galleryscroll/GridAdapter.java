@@ -10,8 +10,8 @@ import java.util.List;
 
 public class GridAdapter extends BaseAdapter {
 
-    private List<String> photos;
-    private Activity context;
+    private final List<String> photos;
+    private final Activity context;
 
     public GridAdapter(Activity applicationContext, List<String> photos) {
         context = applicationContext;
@@ -47,7 +47,7 @@ public class GridAdapter extends BaseAdapter {
         }
         final String photo = photos.get(position);
         holder.position = position;
-        BitmapWorkerCropPhotoTask.setImageAsync(photo, context, holder, position);
+        BitmapWorkerThumbnailPhotoTask.setImageAsync(photo, context, holder, position);
         return convertView;
     }
 

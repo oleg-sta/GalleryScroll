@@ -13,13 +13,13 @@ import android.widget.ImageView;
 
 import java.lang.ref.WeakReference;
 
-public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDrawable> {
+public class BitmapWorkerThumbnailPhotoTask extends AsyncTask<String, Void, BitmapDrawable> {
     private final WeakReference<ViewHolder> imageViewReference;
     private final int position;
     private final Context context;
     private String data = "";
 
-    public BitmapWorkerCropPhotoTask(ViewHolder holder, Activity activity, int position) {
+    public BitmapWorkerThumbnailPhotoTask(ViewHolder holder, Activity activity, int position) {
         this.imageViewReference = new WeakReference(holder);
         this.context = activity;
         this.position = position;
@@ -28,15 +28,17 @@ public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDra
     @Override
     protected BitmapDrawable doInBackground(String... params) {
         data = params[0];
-        Bitmap myBitmap = DataHolder.getInstance().getLittleCropedPhoto(data, context);
+        Bitmap myBitmap = DataHolder.getInstance().getLittleThumbnail(data, context);
         BitmapDrawable drawable = new BitmapDrawable(context.getResources(), myBitmap);
         return drawable;
     }
 
     @Override
     protected void onPostExecute(BitmapDrawable bitmap) {
+        // View could be recycled because of out of the View, in this situation we don't try to put image in View
         if (imageViewReference != null && bitmap != null) {
             final ViewHolder imageView = imageViewReference.get();
+            // We check that the image belongs to the same View, because it could be reused
             if (imageView != null && imageView.position == position && imageView.image != null) {
                 imageView.image.setImageDrawable(bitmap);
             }
@@ -45,7 +47,7 @@ public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDra
 
     public static void setImageAsync(String photo, Activity context, ViewHolder holder, int position) {
         BitmapDrawable value = null;
-        Bitmap bitmap = DataHolder.getInstance().mMemoryCache.get(photo + "_" + DataHolder.PHOTO_SIZE);
+        Bitmap bitmap = DataHolder.getInstance().mMemoryCache.get(photo + "_" + DataHolder.THUMBNAIL_SIZE);
         if (bitmap != null) {
             value = new BitmapDrawable(context.getResources(), bitmap);
         }
@@ -54,7 +56,7 @@ public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDra
         } else if (cancelPotentialWork(photo, holder)) {
             holder.image.setImageBitmap(null);
             holder.image.setBackgroundColor(Color.GRAY);
-            final BitmapWorkerCropPhotoTask task = new BitmapWorkerCropPhotoTask(holder, context, position);
+            final BitmapWorkerThumbnailPhotoTask task = new BitmapWorkerThumbnailPhotoTask(holder, context, position);
             final AsyncDrawable asyncDrawable =
                     new AsyncDrawable(context.getResources(), null, task);
             holder.image.setImageDrawable(asyncDrawable);
@@ -62,21 +64,24 @@ public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDra
         }
     }
 
+    // If View is reused then it could have task already assigned
+    // we need to check the task, if it works with different picture then we try to cancel it and create new one
     public static boolean cancelPotentialWork(String photo, ViewHolder holder) {
         ImageView imageView = holder.image;
-        final BitmapWorkerCropPhotoTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+        final BitmapWorkerThumbnailPhotoTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
         if (bitmapWorkerTask != null) {
             final String bitmapData = bitmapWorkerTask.data;
             if (bitmapData == null || !bitmapData.equals(photo)) {
                 bitmapWorkerTask.cancel(true);
             } else {
+                // we proceed with the same asynctask
                 return false;
             }
         }
         return true;
     }
 
-    private static BitmapWorkerCropPhotoTask getBitmapWorkerTask(ImageView imageView) {
+    private static BitmapWorkerThumbnailPhotoTask getBitmapWorkerTask(ImageView imageView) {
         if (imageView != null) {
             final Drawable drawable = imageView.getDrawable();
             if (drawable instanceof AsyncDrawable) {
@@ -88,17 +93,15 @@ public class BitmapWorkerCropPhotoTask extends AsyncTask<String, Void, BitmapDra
     }
 
     private static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerCropPhotoTask> bitmapWorkerTaskReference;
+        private final WeakReference<BitmapWorkerThumbnailPhotoTask> bitmapWorkerTaskReference;
         @SuppressLint("NewApi")
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerCropPhotoTask bitmapWorkerTask) {
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerThumbnailPhotoTask bitmapWorkerTask) {
             super(res, bitmap);
             bitmapWorkerTaskReference =
                     new WeakReference(bitmapWorkerTask);
         }
-        public BitmapWorkerCropPhotoTask getBitmapWorkerTask() {
+        public BitmapWorkerThumbnailPhotoTask getBitmapWorkerTask() {
             return bitmapWorkerTaskReference.get();
         }
     }
-
-
 }
