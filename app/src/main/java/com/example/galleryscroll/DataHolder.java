@@ -16,7 +16,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class DataHolder {
-    private static final String TAG = DataHolder.class.getSimpleName();
     public static final int THUMBNAIL_SIZE = 150;
     public static LruCache<String, Bitmap> mMemoryCache;
     private static DiskLruImageCache diskLruCacheImage;
@@ -50,7 +49,7 @@ public class DataHolder {
     /**
      * Blocking mechanism of getting thumbnail photo. If photo exists in memory or disk cache it returns it, otherwise it doing creates thumbnails and put to cache either.
      * @param photo path to photo
-     * @param context conext of the application
+     * @param context context of the application
      * @return thumbnail photo
      */
     public Bitmap getLittleThumbnail(String photo, Context context) {
